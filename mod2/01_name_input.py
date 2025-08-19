@@ -4,9 +4,11 @@ name = ""
 # Loop while user input is empty string or whitespaces only
 # Strip leading and trailing whitespaces
 while not name:
-    name = input("Input your name: ").strip()
+    name = input("Give name: ").strip()
     if not name:
         print("Error: Name needs to contain character(s).\nEnter a valid name.")
 
 # Capitalize name
-print(f"Greetings, {name.capitalize()}.")
+greeting = f"Hello, {name.capitalize()}."
+
+print(greeting)
