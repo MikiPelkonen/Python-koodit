@@ -17,5 +17,6 @@ Ryhmä: TXK25S1-D
   - [3. Rectangle](./mod2/03_rectangle.py)
   - [4. Math operations](./mod2/04_sum_product_average.py)
   - [5. Medieval weights](./mod2/05_medieval_weights.py)
+  - [6. Number locks](./mod2/06_number_lock.py)
 
 ---
