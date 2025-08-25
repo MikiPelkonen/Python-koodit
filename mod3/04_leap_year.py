@@ -11,7 +11,7 @@ while True:
     except ValueError:
         print(INVALID_NUMBER_ERROR)
 
-# Evalutate if year is divisible by 4 and not divisible by 100 or year is divisible by 400.
+# Evaluate if year is divisible by 4 and not divisible by 100 or year is divisible by 400.
 is_leap_year: bool = (year % 4 == 0 and year % 100 != 0) or year % 400 == 0
 
 # Print results.
