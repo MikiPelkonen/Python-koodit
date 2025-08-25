@@ -18,5 +18,8 @@ Ryhmä: TXK25S1-D
   - [4. Math operations](./mod2/04_sum_product_average.py)
   - [5. Medieval weights](./mod2/05_medieval_weights.py)
   - [6. Number locks](./mod2/06_number_lock.py)
+- [Module 3](./mod3/)
+  - [1. Zander limit](./mod3/01_zander_size_limit.py)
+  - [2. Cabin class](./mod3/02_cabin_class.py)
 
 ---
