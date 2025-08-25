@@ -23,5 +23,7 @@ Ryhmä: TXK25S1-D
   - [2. Cabin class](./mod3/02_cabin_class.py)
   - [3. Hemoglobin](./mod3/03_hemoglobin.py)
   - [4. Leap year](./mod3/04_leap_year.py)
+- [Module 4](./mod4/)
+  - [1. While numbers](./mod4/01_while_numbers.py)
 
 ---
