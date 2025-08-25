@@ -18,7 +18,7 @@ while try_count <= MAX_TRIES:
 
     # Break loop early if username and password match the constants.
     if input_username == USERNAME and input_password == PASSWORD:
-        # Print welcome message.
+        # Print welcome message and break early.
         print(WELCOME_MSG)
         break
 
