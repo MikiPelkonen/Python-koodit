@@ -22,5 +22,6 @@ Ryhmä: TXK25S1-D
   - [1. Zander limit](./mod3/01_zander_size_limit.py)
   - [2. Cabin class](./mod3/02_cabin_class.py)
   - [3. Hemoglobin](./mod3/03_hemoglobin.py)
+  - [4. Leap year](./mod3/04_leap_year.py)
 
 ---
