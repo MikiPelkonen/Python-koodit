@@ -3,10 +3,10 @@ USERNAME_PROMPT: str = "Enter username: "
 PASSWORD_PROMPT: str = "Enter password: "
 USERNAME: str = "python"
 PASSWORD: str = "rules"
-MAX_TRIES: int = 5
 INVALID_CREDS_MSG: str = "Incorrect username or password. Please try again."
 ACCESS_DENIED_MSG: str = "Access denied"
 WELCOME_MSG: str = "Welcome"
+MAX_TRIES: int = 5
 
 # Variable for try count.
 try_count: int = 1
