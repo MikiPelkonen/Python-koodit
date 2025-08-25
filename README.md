@@ -28,5 +28,6 @@ Ryhmä: TXK25S1-D
   - [2. Inches to centimeters](./mod4/02_inches_to_centimeters.py)
   - [3. Min max from prompt](./mod4/03_min_max_from_prompt.py)
   - [4. Number guessing game](./mod4/04_number_guessing_game.py)
+  - [5. User login](./mod4/05_user_login.py)
 
 ---
