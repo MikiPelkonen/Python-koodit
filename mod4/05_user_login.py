@@ -27,8 +27,7 @@ while try_count <= MAX_TRIES:
     if try_count < MAX_TRIES:
         print(INVALID_CREDS_MSG)
     else:
-        # Else print access denied on failed last try
-        # and break early.
+        # Else print access denied on failed last try and break early.
         print(ACCESS_DENIED_MSG)
         break
 
