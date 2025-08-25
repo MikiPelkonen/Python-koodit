@@ -29,5 +29,6 @@ Ryhmä: TXK25S1-D
   - [3. Min max from prompt](./mod4/03_min_max_from_prompt.py)
   - [4. Number guessing game](./mod4/04_number_guessing_game.py)
   - [5. User login](./mod4/05_user_login.py)
+  - [6. Approximation of PI](./mod4/06_approximation_of_pi.py)
 
 ---
