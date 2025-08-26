@@ -30,5 +30,7 @@ Ryhmä: TXK25S1-D
   - [4. Number guessing game](./mod4/04_number_guessing_game.py)
   - [5. User login](./mod4/05_user_login.py)
   - [6. Approximation of PI](./mod4/06_approximation_of_pi.py)
+- [Module 5](./mod5/)
+  - [1. Many dices](./mod5/01_many_dices.py)
 
 ---
