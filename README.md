@@ -32,5 +32,6 @@ Ryhmä: TXK25S1-D
   - [6. Approximation of PI](./mod4/06_approximation_of_pi.py)
 - [Module 5](./mod5/)
   - [1. Many dices](./mod5/01_many_dices.py)
+  - [2. Reverse sorting](./mod5/02_reverse_sorting.py)
 
 ---
