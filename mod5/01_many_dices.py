@@ -20,7 +20,7 @@ sum_of_dices: int = 0
 
 # Iterate as many times as prompted dice count.
 for _ in range(dice_count):
-    # Add random int between 1-6 to sum of dices.
+    # Add random int between dice min and dice max to sum of dices.
     sum_of_dices += random.randint(DICE_MIN, DICE_MAX)
 
 # Print results.

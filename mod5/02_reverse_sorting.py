@@ -22,7 +22,7 @@ while True:
 
 # Sort number list in descending order.
 number_list.sort(reverse=True)
-# print results in range of 0-number display count.
+# Loop number list until index == number display count.
 for number in number_list[:NUMBER_DISPLAY_COUNT]:
     # Print results with 1 decimal precision.
     print("%.1f" % number)
