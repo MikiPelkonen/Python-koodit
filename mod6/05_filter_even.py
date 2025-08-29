@@ -10,6 +10,10 @@ Functions:
     filter_even_numbers(original_list: list[int]) -> list[int]:
         Returns list with only even numbers from `original_list`.
 
+Example:
+    >>> filter_even_numbers([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    [2, 4, 6, 8, 10]
+
 Author: Miki Pelkonen
 Date: 2025-08-29
 """
