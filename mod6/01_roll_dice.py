@@ -23,6 +23,7 @@ Date: 2025-08-29
 import random
 
 
+# Functions.
 # Naming could be roll_die when rolling a single die.
 def roll_dice():
     """

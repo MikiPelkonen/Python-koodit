@@ -30,6 +30,7 @@ VALUE_ERROR_MSG: str = "Please enter a valid floating point number."
 PROGRAM_FINISHED_MSG: str = "Program finished."
 
 
+# Functions.
 def gallons_to_liters(gallons: float) -> float:
     """
     Converts US gallons to liters and returns the value.

@@ -28,7 +28,7 @@ FACE_COUNT_PROMPT: str = "Enter the maximum face value of the die: "
 VALUE_ERROR_MSG: str = "Please enter a valid integer."
 
 
-# Naming could be roll_die when rolling a single die.
+# Functions.
 def roll_dice(face_count: int) -> int:
     """
     Simulates rolling a die with custom amount of faces.
