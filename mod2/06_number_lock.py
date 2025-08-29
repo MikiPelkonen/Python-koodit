@@ -1,6 +1,6 @@
 import random
 
-# Variables for codes
+# Variables for codes.
 three_digit_code: list[int] = [random.randint(0, 9) for _ in range(3)]
 four_digit_code: list[int] = [random.randint(1, 6) for _ in range(4)]
 

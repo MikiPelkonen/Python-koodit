@@ -1,8 +1,8 @@
 # Constants.
-LAST_NUMBER = 1000
+LAST_NUMBER: int = 1000
 
 # Variable for number/index
-index = 1
+index: int = 1
 
 # Loop while index is less than last number (1000).
 while index < LAST_NUMBER:

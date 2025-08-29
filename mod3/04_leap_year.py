@@ -1,6 +1,6 @@
 # Constants.
 YEAR_PROMPT: str = "Enter a year: "
-INVALID_NUMBER_ERROR = "Please input a valid number."
+INVALID_NUMBER_ERROR: str = "Please input a valid number."
 
 # Prompt user for a year.
 # Loop until user inputs a valid number (integer).

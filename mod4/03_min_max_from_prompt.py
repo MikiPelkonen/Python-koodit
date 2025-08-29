@@ -1,6 +1,6 @@
 # Constants.
-PROMPT = "Enter a number (or press Enter to quit): "
-VALUE_ERROR_MSG = "Please input a valid number."
+PROMPT: str = "Enter a number (or press Enter to quit): "
+VALUE_ERROR_MSG: str = "Please input a valid number."
 
 # float list to hold prompted numbers.
 list_of_numbers: list[float] = []

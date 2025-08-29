@@ -1,5 +1,5 @@
 # Constant tuple of strings for rectangle dimension names
-DIMENSIONS = "length", "width"
+DIMENSIONS: tuple[str, str] = "length", "width"
 
 # Empty list for prompted length and width
 result_list = []

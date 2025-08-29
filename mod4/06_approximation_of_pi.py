@@ -2,8 +2,8 @@
 import random
 
 # Constants.
-NUMBER_PROMPT_MESSAGE = "Enter a random point count: "
-INVALID_INPUT_MESSAGE = "Please enter a valid number."
+NUMBER_PROMPT_MESSAGE: str = "Enter a random point count: "
+INVALID_INPUT_MESSAGE: str = "Please enter a valid number."
 
 # Variables.
 points_inside_circle: int = 0
