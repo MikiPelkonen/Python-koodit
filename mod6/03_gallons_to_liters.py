@@ -2,8 +2,8 @@
 File: 03_gallons_to_liters.py
 
 Description:
-    Converts fuel amounts from US gallons to liters.
-    The program repeatedly prompts user for an amount of gallons to convert.
+    Converts fuel volumes from US gallons to liters.
+    The program repeatedly prompts user for a volume in gallons to convert.
     Entering a negative value exists the program.
 
 Functions:
@@ -36,7 +36,7 @@ def gallons_to_liters(gallons: float) -> float:
     Converts US gallons to liters and returns the value.
 
     Args:
-        gallons (float): Amount of gallons to convert.
+        gallons (float): Volume in gallons.
     Returns:
         float: `gallons` multiplied by `GALLON_IN_LITERS`.
     """
