@@ -33,5 +33,6 @@ Ryhmä: TXK25S1-D
 - [Module 5](./mod5/)
   - [1. Many dices](./mod5/01_many_dices.py)
   - [2. Reverse sorting](./mod5/02_reverse_sorting.py)
+  - [3. Prime numbers](./mod5/03_prime_numbers.py)
 
 ---
