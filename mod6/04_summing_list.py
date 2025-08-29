@@ -29,7 +29,7 @@ def sum_of_list(int_list: list[int]) -> int:
     Args:
         int_list (list[int): List of integers.
     Returns:
-        int: Sum of `int_list`
+        int: Sum of values in `int_list`.
     """
     return sum(int_list)
 
