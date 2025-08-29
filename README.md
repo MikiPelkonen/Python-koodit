@@ -41,5 +41,6 @@ Ryhmä: TXK25S1-D
   - [3. Gallons to liters](./mod6/03_gallons_to_liters.py)
   - [4. Summing list](./mod6/04_summing_list.py)
   - [5. Filter even](./mod6/05_filter_even.py)
+  - [6. Pizza unit price](./mod6/06_pizza_unit_price.py)
 
 ---
