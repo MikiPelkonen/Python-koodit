@@ -40,5 +40,6 @@ Ryhmä: TXK25S1-D
   - [2. Roll custom dice](./mod6/02_roll_custom_dice.py)
   - [3. Gallons to liters](./mod6/03_gallons_to_liters.py)
   - [4. Summing list](./mod6/04_summing_list.py)
+  - [5. Filter even](./mod6/05_filter_even.py)
 
 ---
