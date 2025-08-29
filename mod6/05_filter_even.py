@@ -33,7 +33,7 @@ def filter_even_numbers(original_list: list[int]) -> list[int]:
     Returns:
         list[int]: Even numbers from `original_list`.
     """
-    return list(filter(lambda x: x % 2 == 0, original_list))
+    return [n for n in original_list if n % 2 == 0]
 
 
 # Main program.
