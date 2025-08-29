@@ -8,6 +8,10 @@ Functions:
     sum_of_list(int_list: list[int]) -> int:
         Returns the sum of listed values.
 
+Example:
+    >>> sum_of_list([1, 4, 7, 3])
+    15
+
 Author: Miki Pelkonen
 Date: 2025-08-29
 """
