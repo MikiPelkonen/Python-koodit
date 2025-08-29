@@ -35,5 +35,7 @@ Ryhmä: TXK25S1-D
   - [2. Reverse sorting](./mod5/02_reverse_sorting.py)
   - [3. Prime numbers](./mod5/03_prime_numbers.py)
   - [4. City names](./mod5/04_city_names.py)
+- [Module 6](./mod6/)
+  - [1. Roll dice](./mod6/01_roll_dice.py)
 
 ---
