@@ -1,3 +1,26 @@
+"""
+File: 02_roll_custom_dice.py
+
+Description:
+    Prompts user for custom options for a die.
+    Simulates rolling the die until maximum face value is rolled.
+    Prints every result.
+
+Functions:
+    roll_dice(face_count: int) -> int:
+        Returns a random integer between 1 and `face_count`.
+
+Example:
+    >>> Enter the maximum face value of the die: 21
+    >>> roll_dice(21)
+    5
+    >>> roll_dice(21)
+    21
+
+Author: Miki Pelkonen
+Date: 2025-08-29
+"""
+
 import random
 
 # Constants.
@@ -8,13 +31,13 @@ VALUE_ERROR_MSG: str = "Please enter a valid integer."
 # Naming could be roll_die when rolling a single die.
 def roll_dice(face_count: int) -> int:
     """
-    Simulate rolling a die with custom amount of faces.
+    Simulates rolling a die with custom amount of faces.
 
     Args:
         face_count (int): Count of faces in the die.
 
     Returns:
-        int: Random integer between 1 and face_count.
+        int: Random integer between 1 and `face_count`.
     """
     return random.randint(1, face_count)
 
@@ -28,7 +51,6 @@ while True:
     except ValueError:
         print(VALUE_ERROR_MSG)
 
-# Variable for dice roll return value.
 dice_roll_result: int = 0
 # Loop until max face value is rolled.
 while dice_roll_result != max_face_count:
