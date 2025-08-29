@@ -25,7 +25,7 @@ if user_input <= 1:
 elif user_input % 2 == 0:
     is_prime = user_input == 2
 else:
-    # Loop in range 2 -> square root of prompted number.
+    # Loop in range 2 -> floor value of prompted number's square root.
     for i in range(2, isqrt(user_input) + 1):  # + 1 to include square root itself.
         # If prompted number is divisible by loop index number => not prime.
         if user_input % i == 0:
