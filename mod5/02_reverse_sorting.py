@@ -7,7 +7,7 @@ NUMBER_DISPLAY_COUNT: int = 5
 # List variable for prompted numbers.
 number_list: list[float] = []
 
-# Loop until user inputs a empty string.
+# Loop until user inputs an empty string.
 while True:
     user_input = input(PROMPT)
     if not user_input:
