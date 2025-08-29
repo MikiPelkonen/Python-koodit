@@ -35,5 +35,12 @@ Ryhmä: TXK25S1-D
   - [2. Reverse sorting](./mod5/02_reverse_sorting.py)
   - [3. Prime numbers](./mod5/03_prime_numbers.py)
   - [4. City names](./mod5/04_city_names.py)
+- [Module 6](./mod6/)
+  - [1. Roll dice](./mod6/01_roll_dice.py)
+  - [2. Roll custom dice](./mod6/02_roll_custom_dice.py)
+  - [3. Gallons to liters](./mod6/03_gallons_to_liters.py)
+  - [4. Summing list](./mod6/04_summing_list.py)
+  - [5. Filter even](./mod6/05_filter_even.py)
+  - [6. Pizza unit price](./mod6/06_pizza_unit_price.py)
 
 ---
