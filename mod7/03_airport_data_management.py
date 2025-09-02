@@ -82,7 +82,7 @@ def manage_airport_data():
         while True:
             try:
                 option_number = int(input(OPTIONS_PROMPT))
-                if not 1 <= option_number <= 3:
+                if not 1 <= option_number <= len(DATA_OPTIONS):
                     raise ValueError
                 break
             except ValueError:
