@@ -7,7 +7,7 @@ Description:
     Inputting empty string stops prompting and prints the results.
 
 Functions:
-    prompt_name_for_set() -> set[str]:
+    prompt_names_for_set() -> set[str]:
 
 Example:
     >>> Enter a name: miki
@@ -27,7 +27,7 @@ NAME_RESULTS: tuple[str, str] = ("New name", "Existing name")
 
 
 # Functions.
-def prompt_name_for_set() -> set[str]:
+def prompt_names_for_set() -> set[str]:
     """
     Keeps prompting user for names until an empty string is passed.
 
@@ -51,6 +51,6 @@ def prompt_name_for_set() -> set[str]:
 
 
 # Main program.
-names = prompt_name_for_set()
+names = prompt_names_for_set()
 for name in names:
     print(name)
