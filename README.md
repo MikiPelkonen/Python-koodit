@@ -45,6 +45,7 @@ Ryhmä: TXK25S1-D
 - [Module 7](./mod7/)
   - [1. Four seasons](./mod7/01_four_seasons.py)
   - [2. Name set](./mod7/02_name_set.py)
+  - [3. Airport data management](./mod7/03_airport_data_management.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
