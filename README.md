@@ -42,5 +42,12 @@ Ryhmä: TXK25S1-D
   - [4. Summing list](./mod6/04_summing_list.py)
   - [5. Filter even](./mod6/05_filter_even.py)
   - [6. Pizza unit price](./mod6/06_pizza_unit_price.py)
+- [Module 7](./mod7/)
+  - [1. Four seasons](./mod7/01_four_seasons.py)
+  - [2. Name set](./mod7/02_name_set.py)
+  - [3. Airport data management](./mod7/03_airport_data_management.py)
+- [Extras](./extras/)
+  - [Fizz Buzz](./extras/fizz_buzz.py)
+  - [Text adventure](./extras/text_adventure.py)
 
 ---
