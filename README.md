@@ -44,7 +44,9 @@ Ryhmä: TXK25S1-D
   - [6. Pizza unit price](./mod6/06_pizza_unit_price.py)
 - [Module 7](./mod7/)
   - [1. Four seasons](./mod7/01_four_seasons.py)
+  - [2. Name set](./mod7/02_name_set.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
+  - [Text adventure](./extras/text_adventure.py)
 
 ---
