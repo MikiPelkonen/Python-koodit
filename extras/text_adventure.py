@@ -31,6 +31,17 @@ class Colors(Enum):
     ENDC = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
+    # cancel SGR codes if we don't write to a terminal
+    if not __import__("sys").stdout.isatty():
+        for _ in dir():
+            if isinstance(_, str) and _[0] != "_":
+                locals()[_] = ""
+    else:
+        # set Windows console in VT mode
+        if __import__("platform").system() == "Windows":
+            kernel32 = __import__("ctypes").windll.kernel32
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+            del kernel32
 
 
 class Coordinate:
@@ -41,12 +52,21 @@ class Coordinate:
     def __repr__(self) -> str:
         return f"X: {self.x} Y: {self.y}"
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Coordinate):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self) -> int:
+        return hash((self.x, self.y))
+
 
 class Player:
     def __init__(self, game_size: int, name: str, start_position: Coordinate) -> None:
         self.game_size = game_size
         self.name = name
         self.position = start_position
+        self.quest_log = QuestLog()
 
     def run(self, command: IPlayerCommand):
         command.run(self)
@@ -107,12 +127,108 @@ class EastCommand(IPlayerCommand):
             player.illegal_move()
 
 
+class Quest:
+    def __init__(self, name: str, desccription: str, target: Character) -> None:
+        self.name = name
+        self.target = target
+        self.description = desccription
+        self.completed = False
+
+    def __repr__(self) -> str:
+        return f"{self.name}\n{self.description}\ncompleted: [{'x' if self.completed else ' '}]\n"
+
+    def try_complete(self, character: Character):
+        if self.target == character:
+            self.completed = True
+        print(color_text(Colors.OKGREEN, f"Quest: {self.name} completed!"))
+
+
+class QuestLog:
+    def __init__(self) -> None:
+        self.quests = []
+
+    def get_quests(self) -> list[Quest]:
+        return self.quests
+
+    def add_quest(self, quest: Quest):
+        if quest not in self.quests:
+            self.quests.append(quest)
+            print(color_text(Colors.WARNING, f"Quest: {quest.name} accepted!"))
+
+    def complete_quest(self, quest: Quest, target: Character):
+        quest.try_complete(target)
+
+
+class Character(ABC):
+    def __init__(self, name: str, start_position: Coordinate) -> None:
+        self.name: str = name
+        self.position: Coordinate = start_position
+        self.quest: Quest
+
+    @abstractmethod
+    def dialogue(self, player: Player):
+        pass
+
+
+class Wizard(Character):
+    def __init__(self, name: str, start_position: Coordinate, target) -> None:
+        super().__init__(name, start_position)
+        tutorial_quest = Quest(
+            "The Codex Obscure", "Get the Codex Obscure from librarian.", target
+        )
+        self.quest = tutorial_quest
+
+    def dialogue(self, player: Player):
+        clear_console()
+        print(
+            color_text(Colors.OKBLUE, f"[{self.name}]: "),
+            f"Hush now, apprentice {player.name}...\nA tome of great importance lies hidden in the library—'The Codex Obscura.'\nThe Librarian guards it jealously, but you must persuade them to let you borrow it.\nBring me this book, and I shall reveal secrets of power that even the stones dare not whisper.",
+        )
+        player.quest_log.add_quest(self.quest)
+        press_enter()
+
+
+class Librarian(Character):
+    def __init__(self, name: str, start_position: Coordinate) -> None:
+        super().__init__(name, start_position)
+
+    def dialogue(self, player: Player):
+        clear_console()
+        print(
+            color_text(Colors.OKBLUE, f"[{self.name}]:"),
+            f"Shhh {player.name}… the books are sleeping.\nYou may not take anything without permission.\nAh, you seek 'The Codex Obscura', do you?\nThe Wizard at the entrance desires it, but I cannot simply hand it over.\nProve your worth, and perhaps I shall consider your request.",
+        )
+        press_enter()
+
+
 class World:
     def __init__(self, rooms) -> None:
         self.rooms = rooms
+        librarian = Librarian("Archivist Morwenna", Coordinate(0, 0))
+        self.characters = {
+            "Wizard": Wizard(
+                "Merlin Longbeard",
+                Coordinate(0, 0),
+                librarian,
+            ),
+            "Librarian": librarian,
+        }
+        for row in self.rooms:
+            for room in row:
+                if room.room_type == RoomType.LIBRARY:
+                    self.characters["Librarian"].position = room.coords
+                if room.room_type == RoomType.ENTRANCE:
+                    self.characters["Wizard"].position = room.coords
 
-    def get_room_type(self, coords: Coordinate) -> RoomType:
-        return self.rooms[coords.x][coords.y].room_type
+    def get_characters_by_room_position(self, coords: Coordinate) -> list[Character]:
+        character_list: list[Character] = []
+        for character in self.characters.values():
+            if character.position == coords:
+                character_list.append(character)
+        return character_list
+
+    def get_room_by_position(self, coords: Coordinate) -> Room:
+        return self.rooms[coords.x][coords.y]
 
 
 class WorldBuilder:
@@ -141,8 +257,8 @@ class WorldBuilder:
 
 class Room:
     def __init__(self, room_type: RoomType, coords: Coordinate) -> None:
-        self.room_type = room_type
-        self.coords = coords
+        self.room_type: RoomType = room_type
+        self.coords: Coordinate = coords
 
     def __repr__(self) -> str:
         return f"{self.room_type.name.capitalize()}({self.coords})"
@@ -153,36 +269,37 @@ class Game:
         self.world = world
         self.player = player
         self.game_over = False
+        self.start_time = datetime.now()
 
-    def display_room(self, room_type: RoomType):
+    def display_room(self, room: Room):
         print(
             color_text(
                 Colors.HEADER,
-                f"You are in the room: {room_type.name.capitalize()} at coordinates: {self.player.position}",
+                f"You are in the room: {room.room_type.name.capitalize()} at coordinates: {self.player.position}",
             )
         )
-        if room_type == RoomType.EMPTY:
+        if room.room_type == RoomType.EMPTY:
             print(
                 color_text(
                     Colors.ENDC,
                     "\nThe chamber is bare and cold.\nDust swirls in the stale air,\nand your footsteps echo against stone walls.",
                 )
             )
-        elif room_type == RoomType.ENTRANCE:
+        elif room.room_type == RoomType.ENTRANCE:
             print(
                 color_text(
                     Colors.ENDC,
                     "\nA heavy wooden door creaks behind you.\nA faint draft of fresh air slips through the cracks,\ncarrying with it the scent of pine from outside.",
                 )
             )
-        elif room_type == RoomType.LIBRARY:
+        elif room.room_type == RoomType.LIBRARY:
             print(
                 color_text(
                     Colors.ENDC,
                     "\nTowering shelves groan under the weight of ancient tomes.\nThe scent of parchment and candlewax lingers,\nand faint whispers seem to dance between the books.",
                 )
             )
-        elif room_type == RoomType.KITCHEN:
+        elif room.room_type == RoomType.KITCHEN:
             print(
                 color_text(
                     Colors.ENDC,
@@ -190,21 +307,28 @@ class Game:
                 )
             )
 
+        for character in self.world.characters.values():
+            if room.coords == character.position:
+                print(
+                    color_text(
+                        Colors.WARNING,
+                        f"There is a {character.__class__.__name__} in the room.\nType 'talk' to start dialogue with {character.name}.",
+                    )
+                )
+                return character
+
     def run(self):
         clear_console()
         print(color_text(Colors.HEADER, "You stand at the castle gates."))
         print(
-            color_text(
-                Colors.OKGREEN,
-                "Cold wind sweeps across the courtyard,\ncarrying the scent of dust and forgotten history.  ",
-            )
+            "Cold wind sweeps across the courtyard,\ncarrying the scent of dust and forgotten history.  ",
         )
         press_enter()
         # Game loop
         while not self.game_over:
             clear_console()
-            room_type = self.world.get_room_type(self.player.position)
-            self.display_room(room_type)
+            room = self.world.get_room_by_position(self.player.position)
+            character = self.display_room(room)
             command_str = player_input_prompt(
                 self.player.name, "\nWhat do you want to do? "
             )
@@ -218,22 +342,28 @@ class Game:
             if command_str == "exit":
                 break
 
-            if command is None:
-                self.invalid_command(command_str)
+            if character is not None and command_str == "talk":
+                character.dialogue(self.player)
+            elif command_str == "quests":
+                clear_console()
+                for idx, q in enumerate(self.player.quest_log.get_quests()):
+                    print(f"{idx + 1}. {q}")
+                press_enter()
             else:
-                self.player.run(command)
+                if command is None:
+                    self.invalid_command(command_str)
+                else:
+                    self.player.run(command)
 
     def invalid_command(self, command: str):
         clear_console()
         print(color_text(Colors.FAIL, f"INVALID COMMAND: {command}\n"))
         print(color_text(Colors.OKGREEN, "Valid commands:"))
-        print(
-            color_text(Colors.WARNING, "move north, move south, move west, move east")
-        )
+        print("move north, move south, move west, move east")
         press_enter()
 
 
-# Functions.
+# Functions. (Global/Main level helpers)
 def get_game_size() -> GameSize:
     while True:
         user_input = (
@@ -261,7 +391,7 @@ def get_game_life_time(start_time: datetime, player_info: str):
     clear_console()
     print(f"The game was running for {minutes} minutes and {seconds} seconds.")
     print(
-        f"Thank you {player_info} for playing!\n{color_text(Colors.OKBLUE, '- smol indie dev')}"
+        f"Thank you {color_text(Colors.OKCYAN, player_info)} for playing!\n{color_text(Colors.OKBLUE, '- smol indie dev')}"
     )
 
 
@@ -288,7 +418,6 @@ def press_enter(message: str = "\nPress enter to continue..."):
 
 
 # Main program.
-start_time: datetime = datetime.now()
 world_builder: WorldBuilder = WorldBuilder(get_game_size())
 player_info = get_player_info()
 game: Game = Game(
@@ -296,4 +425,4 @@ game: Game = Game(
     Player(world_builder.game_size.value, player_info, Coordinate(0, 0)),
 )
 game.run()
-get_game_life_time(start_time, player_info)
+get_game_life_time(game.start_time, player_info)
