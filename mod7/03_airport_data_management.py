@@ -18,7 +18,7 @@ Example:
     >>> Enter the ICAO code: FGFG
     >>> Enter the airport name: Temp airport
     Airport Temp airport with ICAO code FGFG has been added.
-    >>> Please choosen an option(1-3): 2
+    >>> Please choose an option(1-3): 2
     >>> Enter the ICAO code: FGFG
     The airport with ICAO code FGFG is Temp airport.
 
