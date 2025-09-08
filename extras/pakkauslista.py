@@ -3,10 +3,7 @@ RESULT_HEADING: str = "\nAnnetut esineet:"
 
 item_set = set()
 
-while True:
-    user_input = input(ITEM_PROMPT)
-    if not user_input:
-        break
+while user_input := input(ITEM_PROMPT):
     if user_input not in item_set:
         item_set.add(user_input)
     else:
