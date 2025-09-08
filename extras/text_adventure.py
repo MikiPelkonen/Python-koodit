@@ -174,7 +174,7 @@ class Wizard(Character):
     def __init__(self, name: str, start_position: Coordinate, target) -> None:
         super().__init__(name, start_position)
         tutorial_quest = Quest(
-            "The Codex Obscure", "Get the Codex Obscure from librarian.", target
+            "The Codex Obscura", "Navigate to library and ask for the codex.", target
         )
         self.quest = tutorial_quest
 
@@ -182,7 +182,7 @@ class Wizard(Character):
         clear_console()
         print(
             color_text(Colors.OKBLUE, f"[{self.name}]: "),
-            f"Hush now, apprentice {player.name}...\nA tome of great importance lies hidden in the library—'The Codex Obscura.'\nThe Librarian guards it jealously, but you must persuade them to let you borrow it.\nBring me this book, and I shall reveal secrets of power that even the stones dare not whisper.",
+            f"Hush now, apprentice {player.name}...\nA tome of great importance lies hidden in the library—\n~ The Codex Obscura. ~\nThe Librarian guards it jealously, but you must persuade them to let you borrow it.\nBring me this book, and I shall reveal secrets of power that even the stones dare not whisper.",
         )
         player.quest_log.add_quest(self.quest)
         press_enter()
