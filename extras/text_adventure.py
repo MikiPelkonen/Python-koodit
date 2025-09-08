@@ -97,10 +97,17 @@ class Inventory:
         self.items = list[Item]()
 
     def add_item(self, item: Item):
-        self.items.append(item)
+        if item not in self.items:
+            self.items.append(item)
 
     def delete_item(self, item: Item):
         self.items.remove(item)
+
+    def has_item(self, name: str) -> bool:
+        for item in self.items:
+            if item.name == name:
+                return True
+        return False
 
     def __repr__(self) -> str:
         item_list = ""
@@ -164,10 +171,11 @@ class Quest:
     def __repr__(self) -> str:
         return f"{self.name}\n{self.description}\ncompleted: [{'x' if self.completed else ' '}]\n"
 
-    def try_complete(self, character: Character):
+    def try_complete(self, character: Character, player: Player):
         if self.target == character:
-            self.completed = True
-        print(color_text(Colors.OKGREEN, f"Quest: {self.name} completed!"))
+            if player.inventory.has_item(self.item):
+                self.completed = True
+                print(color_text(Colors.OKGREEN, f"Quest: {self.name} completed!"))
 
 
 class QuestLog:
@@ -182,8 +190,8 @@ class QuestLog:
             self.quests.append(quest)
             print(color_text(Colors.WARNING, f"Quest: {quest.name} accepted!"))
 
-    def complete_quest(self, quest: Quest, target: Character):
-        quest.try_complete(target)
+    def complete_quest(self, quest: Quest, target: Character, player: Player):
+        quest.try_complete(target, player)
 
 
 class Character(ABC):
@@ -248,6 +256,7 @@ class Chef(Character):
             color_text(Colors.OKBLUE, f"[{self.name}]:"),
             f"The chef looks up from his cutting board with a warm smile, {player.name.upper()}, wiping his hands on his apron.\nAh, you want a coffee, eh? No problem, friend. Strong and hot, just the way I like it myself. Give me a moment...",
         )
+        player.inventory.add_item(self.quest_item)
         press_enter()
 
 
@@ -398,6 +407,10 @@ class Game:
 
             if character is not None and command_str == "talk":
                 character.dialogue(self.player)
+            elif command_str == "inventory":
+                clear_console()
+                print(self.player.inventory)
+                press_enter()
             elif command_str == "quests":
                 clear_console()
                 for idx, q in enumerate(self.player.quest_log.get_quests()):
