@@ -67,6 +67,7 @@ class Player:
         self.name = name
         self.position = start_position
         self.quest_log = QuestLog()
+        self.inventory = Inventory()
 
     def run(self, command: IPlayerCommand):
         command.run(self)
@@ -83,6 +84,29 @@ class Player:
     def illegal_move(self):
         print(color_text(Colors.FAIL, "Illegal move! Try another direction!"))
         press_enter()
+
+
+class Item:
+    def __init__(self, name: str, desc: str) -> None:
+        self.name = name
+        self.description = desc
+
+
+class Inventory:
+    def __init__(self) -> None:
+        self.items = list[Item]()
+
+    def add_item(self, item: Item):
+        self.items.append(item)
+
+    def delete_item(self, item: Item):
+        self.items.remove(item)
+
+    def __repr__(self) -> str:
+        item_list = ""
+        for item in self.items:
+            item_list += f"{item.name} - {item.description}\n"
+        return item_list
 
 
 class IPlayerCommand(ABC):
@@ -128,10 +152,13 @@ class EastCommand(IPlayerCommand):
 
 
 class Quest:
-    def __init__(self, name: str, desccription: str, target: Character) -> None:
+    def __init__(
+        self, name: str, desccription: str, target: Character, item: str
+    ) -> None:
         self.name = name
         self.target = target
         self.description = desccription
+        self.item = item
         self.completed = False
 
     def __repr__(self) -> str:
@@ -174,7 +201,10 @@ class Wizard(Character):
     def __init__(self, name: str, start_position: Coordinate, target) -> None:
         super().__init__(name, start_position)
         tutorial_quest = Quest(
-            "The Codex Obscura", "Navigate to library and ask for the codex.", target
+            "The Codex Obscura",
+            "Navigate to library and ask for the codex.",
+            target,
+            "codexobscura",
         )
         self.quest = tutorial_quest
 
@@ -189,8 +219,13 @@ class Wizard(Character):
 
 
 class Librarian(Character):
-    def __init__(self, name: str, start_position: Coordinate) -> None:
+    def __init__(self, name: str, start_position: Coordinate, target) -> None:
         super().__init__(name, start_position)
+        coffee_quest = Quest(
+            "Cup of joe", "Navigate to kitchen and ask for a coffee.", target, "coffee"
+        )
+        self.quest = coffee_quest
+        self.quest_item = Item("The Codex Obscura", "The codex of blaablaa...")
 
     def dialogue(self, player: Player):
         clear_console()
@@ -198,13 +233,29 @@ class Librarian(Character):
             color_text(Colors.OKBLUE, f"[{self.name}]:"),
             f"Shhh {player.name}… the books are sleeping.\nYou may not take anything without permission.\nAh, you seek 'The Codex Obscura', do you?\nThe Wizard at the entrance desires it, but I cannot simply hand it over.\nProve your worth, and perhaps I shall consider your request.",
         )
+        player.quest_log.add_quest(self.quest)
+        press_enter()
+
+
+class Chef(Character):
+    def __init__(self, name: str, start_position: Coordinate) -> None:
+        super().__init__(name, start_position)
+        self.quest_item = Item("Coffee", "Black as midnight on a moonless night.")
+
+    def dialogue(self, player: Player):
+        clear_console()
+        print(
+            color_text(Colors.OKBLUE, f"[{self.name}]:"),
+            f"The chef looks up from his cutting board with a warm smile, {player.name.upper()}, wiping his hands on his apron.\nAh, you want a coffee, eh? No problem, friend. Strong and hot, just the way I like it myself. Give me a moment...",
+        )
         press_enter()
 
 
 class World:
     def __init__(self, rooms) -> None:
         self.rooms = rooms
-        librarian = Librarian("Archivist Morwenna", Coordinate(0, 0))
+        chef = Chef("Gordan Remsay", Coordinate(0, 0))
+        librarian = Librarian("Archivist Morwenna", Coordinate(0, 0), chef)
         self.characters = {
             "Wizard": Wizard(
                 "Merlin Longbeard",
@@ -212,6 +263,7 @@ class World:
                 librarian,
             ),
             "Librarian": librarian,
+            "Chef": chef,
         }
         for row in self.rooms:
             for room in row:
@@ -219,6 +271,8 @@ class World:
                     self.characters["Librarian"].position = room.coords
                 if room.room_type == RoomType.ENTRANCE:
                     self.characters["Wizard"].position = room.coords
+                if room.room_type == RoomType.KITCHEN:
+                    self.characters["Chef"].position = room.coords
 
     def get_characters_by_room_position(self, coords: Coordinate) -> list[Character]:
         character_list: list[Character] = []
