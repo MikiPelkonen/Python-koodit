@@ -49,5 +49,6 @@ Ryhmä: TXK25S1-D
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
+  - [Pakkauslista](./extras/pakkauslista.py)
 
 ---
