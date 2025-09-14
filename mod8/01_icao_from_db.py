@@ -3,7 +3,7 @@ from mysql.connector import Error
 
 # Constants.
 ICAO_PROMPT: str = "Enter the ICAO code of an airport: "
-CONFIG = {
+CONFIG: dict = {
     "host": "127.0.0.1",
     "port": 3306,
     "database": "flight_game",
@@ -11,6 +11,7 @@ CONFIG = {
     "password": "2122",
     "autocommit": True,
 }
+DB_CONN_ERR_PREFIX: str = "Database connection error: "
 
 
 # Functions.
@@ -33,7 +34,7 @@ def get_airport_by_icao_code(icao_code: str):
                 return row
 
     except Error as err:
-        print(f"Database connection error: {err}")
+        print(DB_CONN_ERR_PREFIX, err)
 
 
 # Main program.

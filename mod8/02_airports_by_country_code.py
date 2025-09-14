@@ -3,7 +3,7 @@ from mysql.connector import Error
 
 # Constants.
 COUNTRY_PROMPT: str = "Enter the country code (e.g., FI for Finland): "
-CONFIG = {
+CONFIG: dict = {
     "host": "127.0.0.1",
     "port": 3306,
     "database": "flight_game",
@@ -11,6 +11,7 @@ CONFIG = {
     "password": "2122",
     "autocommit": True,
 }
+DB_CONN_ERR_PREFIX: str = "Database connection error: "
 
 
 # Functions.
@@ -40,7 +41,7 @@ def get_airports_by_country_code(country_code: str) -> dict[str, list[str]]:
                 return airports_by_type
 
     except Error as err:
-        print(f"Database connection error: {err}")
+        print(DB_CONN_ERR_PREFIX, err)
         return {}
 
 
