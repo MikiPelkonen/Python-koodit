@@ -228,6 +228,26 @@ class InteractCommand(IPlayerCommand):
             press_enter()
 
 
+class HelpCommand(IPlayerCommand):
+    def run(self, player: Player):
+        clear_console()
+        print(f"Player: {player.name}")
+        print(color_text(Colors.OKGREEN, "[COMMANDS]"))
+        print(color_text(Colors.HEADER, "Move: "))
+        print("north, south, west, east")
+        print("")
+        print(color_text(Colors.HEADER, "Interact: "))
+        print("talk")
+        print("")
+        print(color_text(Colors.HEADER, "User interface: "))
+        print("quests, inventory")
+        print("")
+        print(color_text(Colors.WARNING, "Exit game: "))
+        print("exit")
+        print("")
+        press_enter()
+
+
 class ToggleQuestlog(IPlayerCommand):
     def run(self, player: Player):
         clear_console()
@@ -466,6 +486,7 @@ class Game:
                 "talk": InteractCommand(),
                 "quests": ToggleQuestlog(),
                 "inventory": ToggleInventory(),
+                "help": HelpCommand(),
             }.get(command_str)
 
             if command is None:
@@ -476,19 +497,7 @@ class Game:
     def invalid_command(self, command: str):
         clear_console()
         print(color_text(Colors.FAIL, f"INVALID COMMAND: {command}\n"))
-        print(color_text(Colors.OKGREEN, "[COMMANDS]"))
-        print(color_text(Colors.HEADER, "Move: "))
-        print("north, south, west, east")
-        print("")
-        print(color_text(Colors.HEADER, "Interact: "))
-        print("talk")
-        print("")
-        print(color_text(Colors.HEADER, "User interface: "))
-        print("quests, inventory")
-        print("")
-        print(color_text(Colors.WARNING, "Exit game: "))
-        print("exit")
-        print("")
+        print("type help for list of commands...")
         press_enter()
 
 
