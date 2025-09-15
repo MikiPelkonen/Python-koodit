@@ -1,4 +1,14 @@
 # Work in progress...
+"""
+!!! Dont overextend the scope anymore...!!!
+
+TODOS:
+- Quest completion logic
+- Item/Quest item logic
+- Game progression/Quest progression phase logic
+- Game end logic
+- Proper credits
+"""
 
 from __future__ import annotations
 from enum import Enum
@@ -126,6 +136,46 @@ class Inventory:
         return item_list
 
 
+class Quest:
+    def __init__(
+        self, name: str, desccription: str, target: Character, item: str
+    ) -> None:
+        self.name = name
+        self.target = target
+        self.description = desccription
+        self.item = item
+        self.completed = False
+
+    def __repr__(self) -> str:
+        return f"{self.name}\n{self.description}\ncompleted: [{'x' if self.completed else ' '}]\n"
+
+    def try_complete(self, character: Character, player: Player):
+        if self.target == character:
+            if player.inventory.has_item(self.item):
+                self.completed = True
+                print(color_text(Colors.OKGREEN, f"Quest: {self.name} completed!"))
+
+
+class QuestLog:
+    def __init__(self) -> None:
+        self.quests = []
+
+    def quest_count(self) -> int:
+        return len(self.quests)
+
+    def get_quests(self) -> list[Quest]:
+        return self.quests
+
+    def add_quest(self, quest: Quest):
+        if quest not in self.quests:
+            self.quests.append(quest)
+            print(color_text(Colors.WARNING, f"Quest: {quest.name} accepted!"))
+
+    def complete_quest(self, quest: Quest, target: Character, player: Player):
+        quest.try_complete(target, player)
+
+
+# Player commands.
 class IPlayerCommand(ABC):
     @abstractmethod
     def run(self, player: Player):
@@ -199,45 +249,7 @@ class ToggleInventory(IPlayerCommand):
         press_enter()
 
 
-class Quest:
-    def __init__(
-        self, name: str, desccription: str, target: Character, item: str
-    ) -> None:
-        self.name = name
-        self.target = target
-        self.description = desccription
-        self.item = item
-        self.completed = False
-
-    def __repr__(self) -> str:
-        return f"{self.name}\n{self.description}\ncompleted: [{'x' if self.completed else ' '}]\n"
-
-    def try_complete(self, character: Character, player: Player):
-        if self.target == character:
-            if player.inventory.has_item(self.item):
-                self.completed = True
-                print(color_text(Colors.OKGREEN, f"Quest: {self.name} completed!"))
-
-
-class QuestLog:
-    def __init__(self) -> None:
-        self.quests = []
-
-    def quest_count(self) -> int:
-        return len(self.quests)
-
-    def get_quests(self) -> list[Quest]:
-        return self.quests
-
-    def add_quest(self, quest: Quest):
-        if quest not in self.quests:
-            self.quests.append(quest)
-            print(color_text(Colors.WARNING, f"Quest: {quest.name} accepted!"))
-
-    def complete_quest(self, quest: Quest, target: Character, player: Player):
-        quest.try_complete(target, player)
-
-
+# Character classes.
 class Character(ABC):
     def __init__(self, name: str, start_position: Coordinate) -> None:
         self.name: str = name
@@ -304,6 +316,7 @@ class Chef(Character):
         press_enter()
 
 
+# World entities.
 class World:
     def __init__(self, rooms) -> None:
         self.rooms = rooms
