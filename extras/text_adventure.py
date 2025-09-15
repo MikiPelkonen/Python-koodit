@@ -68,9 +68,16 @@ class Player:
         self.position = start_position
         self.quest_log = QuestLog()
         self.inventory = Inventory()
+        self.target = None
 
     def run(self, command: IPlayerCommand):
         command.run(self)
+
+    def set_target_npc(self, character: Character):
+        self.target = character
+
+    def clear_target_npc(self):
+        self.target = None
 
     def is_legal_move(self, coords: Coordinate) -> bool:
         legal: bool = (
@@ -161,6 +168,16 @@ class EastCommand(IPlayerCommand):
             player.illegal_move()
 
 
+class InteractCommand(IPlayerCommand):
+    def run(self, player: Player):
+        if player.target is not None:
+            player.target.dialogue(player)
+        else:
+            clear_console()
+            print("There is no-one to talk to...")
+            press_enter()
+
+
 class ToggleQuestlog(IPlayerCommand):
     def run(self, player: Player):
         clear_console()
@@ -246,8 +263,8 @@ class Wizard(Character):
     def dialogue(self, player: Player):
         clear_console()
         print(
-            color_text(Colors.OKBLUE, f"[{self.name}]: "),
-            f"Hush now, apprentice {player.name}...\nA tome of great importance lies hidden in the library—\n~ The Codex Obscura. ~\nThe Librarian guards it jealously, but you must persuade them to let you borrow it.\nBring me this book, and I shall reveal secrets of power that even the stones dare not whisper.",
+            color_text(Colors.OKBLUE, f"[{self.name}]:"),
+            f"\nHush now, apprentice {player.name}...\nA tome of great importance lies hidden in the library—\n~ The Codex Obscura. ~\nThe Librarian guards it jealously, but you must persuade them to let you borrow it.\nBring me this book, and I shall reveal secrets of power that even the stones dare not whisper.",
         )
         player.quest_log.add_quest(self.quest)
         press_enter()
@@ -266,7 +283,7 @@ class Librarian(Character):
         clear_console()
         print(
             color_text(Colors.OKBLUE, f"[{self.name}]:"),
-            f"Shhh {player.name}… the books are sleeping.\nYou may not take anything without permission.\nAh, you seek 'The Codex Obscura', do you?\nThe Wizard at the entrance desires it, but I cannot simply hand it over.\nProve your worth, and perhaps I shall consider your request.",
+            f"\nShhh {player.name}… the books are sleeping.\nYou may not take anything without permission.\nAh, you seek 'The Codex Obscura', do you?\nThe Wizard at the entrance desires it, but I cannot simply hand it over.\nProve your worth, and perhaps I shall consider your request.",
         )
         player.quest_log.add_quest(self.quest)
         press_enter()
@@ -281,7 +298,7 @@ class Chef(Character):
         clear_console()
         print(
             color_text(Colors.OKBLUE, f"[{self.name}]:"),
-            f"The chef looks up from his cutting board with a warm smile, {player.name.upper()}, wiping his hands on his apron.\nAh, you want a coffee, eh? No problem, friend. Strong and hot, just the way I like it myself. Give me a moment...",
+            f"\nThe chef looks up from his cutting board with a warm smile, {player.name.upper()}, wiping his hands on his apron.\nAh, you want a coffee, eh? No problem, friend. Strong and hot, just the way I like it myself. Give me a moment...",
         )
         player.inventory.add_item(self.quest_item)
         press_enter()
@@ -405,7 +422,7 @@ class Game:
                         f"There is a {character.__class__.__name__} in the room.\nType 'talk' to start dialogue with {character.name}.",
                     )
                 )
-                return character
+                self.player.target = character
 
     def run(self):
         clear_console()
@@ -417,8 +434,10 @@ class Game:
         # Game loop
         while not self.game_over:
             clear_console()
+            self.player.clear_target_npc()
             room = self.world.get_room_by_position(self.player.position)
-            character = self.display_room(room)
+            self.display_room(room)
+
             command_str = player_input_prompt(
                 self.player.name, "\nWhat do you want to do? "
             )
@@ -431,17 +450,15 @@ class Game:
                 "south": SouthCommand(),
                 "east": EastCommand(),
                 "west": WestCommand(),
+                "talk": InteractCommand(),
                 "quests": ToggleQuestlog(),
                 "inventory": ToggleInventory(),
             }.get(command_str)
 
-            if character is not None and command_str == "talk":
-                character.dialogue(self.player)
+            if command is None:
+                self.invalid_command(command_str)
             else:
-                if command is None:
-                    self.invalid_command(command_str)
-                else:
-                    self.player.run(command)
+                self.player.run(command)
 
     def invalid_command(self, command: str):
         clear_console()
