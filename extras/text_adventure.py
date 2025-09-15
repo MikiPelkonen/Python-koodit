@@ -20,7 +20,6 @@ class RoomType(Enum):
     KITCHEN = 3
 
 
-# Classes.
 class Colors(Enum):
     HEADER = "\033[95m"
     OKBLUE = "\033[94m"
@@ -44,6 +43,7 @@ class Colors(Enum):
             del kernel32
 
 
+# Classes.
 class Coordinate:
     def __init__(self, x: int, y: int) -> None:
         self.x = x
@@ -95,6 +95,9 @@ class Item:
 class Inventory:
     def __init__(self) -> None:
         self.items = list[Item]()
+
+    def item_count(self) -> int:
+        return len(self.items)
 
     def add_item(self, item: Item):
         if item not in self.items:
@@ -158,6 +161,27 @@ class EastCommand(IPlayerCommand):
             player.illegal_move()
 
 
+class ToggleQuestlog(IPlayerCommand):
+    def run(self, player: Player):
+        clear_console()
+        if player.quest_log.quest_count() <= 0:
+            print("Your quest log is empty...")
+        else:
+            for idx, q in enumerate(player.quest_log.get_quests()):
+                print(f"{idx + 1}. {q}")
+        press_enter()
+
+
+class ToggleInventory(IPlayerCommand):
+    def run(self, player: Player):
+        clear_console()
+        if player.inventory.item_count() <= 0:
+            print("Your inventory is empty...")
+        else:
+            print(player.inventory)
+        press_enter()
+
+
 class Quest:
     def __init__(
         self, name: str, desccription: str, target: Character, item: str
@@ -181,6 +205,9 @@ class Quest:
 class QuestLog:
     def __init__(self) -> None:
         self.quests = []
+
+    def quest_count(self) -> int:
+        return len(self.quests)
 
     def get_quests(self) -> list[Quest]:
         return self.quests
@@ -395,27 +422,21 @@ class Game:
             command_str = player_input_prompt(
                 self.player.name, "\nWhat do you want to do? "
             )
-            command = {
-                "move north": NorthCommand(),
-                "move south": SouthCommand(),
-                "move east": EastCommand(),
-                "move west": WestCommand(),
-            }.get(command_str)
 
             if command_str == "exit":
                 break
 
+            command = {
+                "north": NorthCommand(),
+                "south": SouthCommand(),
+                "east": EastCommand(),
+                "west": WestCommand(),
+                "quests": ToggleQuestlog(),
+                "inventory": ToggleInventory(),
+            }.get(command_str)
+
             if character is not None and command_str == "talk":
                 character.dialogue(self.player)
-            elif command_str == "inventory":
-                clear_console()
-                print(self.player.inventory)
-                press_enter()
-            elif command_str == "quests":
-                clear_console()
-                for idx, q in enumerate(self.player.quest_log.get_quests()):
-                    print(f"{idx + 1}. {q}")
-                press_enter()
             else:
                 if command is None:
                     self.invalid_command(command_str)
@@ -425,8 +446,19 @@ class Game:
     def invalid_command(self, command: str):
         clear_console()
         print(color_text(Colors.FAIL, f"INVALID COMMAND: {command}\n"))
-        print(color_text(Colors.OKGREEN, "Valid commands:"))
-        print("move north, move south, move west, move east")
+        print(color_text(Colors.OKGREEN, "[COMMANDS]"))
+        print(color_text(Colors.HEADER, "Move: "))
+        print("north, south, west, east")
+        print("")
+        print(color_text(Colors.HEADER, "Interact: "))
+        print("talk")
+        print("")
+        print(color_text(Colors.HEADER, "User interface: "))
+        print("quests, inventory")
+        print("")
+        print(color_text(Colors.WARNING, "Exit game: "))
+        print("exit")
+        print("")
         press_enter()
 
 
