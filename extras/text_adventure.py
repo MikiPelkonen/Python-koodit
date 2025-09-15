@@ -179,7 +179,7 @@ class QuestLog:
 class IPlayerCommand(ABC):
     @abstractmethod
     def run(self, player: Player):
-        return
+        raise NotImplementedError
 
 
 class NorthCommand(IPlayerCommand):
