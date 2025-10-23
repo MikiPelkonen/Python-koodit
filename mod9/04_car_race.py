@@ -60,4 +60,4 @@ def race_results(cars: list[Car]) -> str:
 
 
 finished_cars = race(CARS)
-print(race_results(race(finished_cars)))
+print(race_results(finished_cars))
