@@ -24,12 +24,16 @@ class Car:
         clamped_speed = clamp(new_speed, 0, self.maximum_speed)
         self.current_speed = clamped_speed
 
+    def drive(self, hours: float):
+        drive_distance = self.current_speed * hours
+        self.travelled_distance += drive_distance
+
 
 LICENSE_PLATE: str = "ABC-123"
 MAXIMUM_SPEED: int = 142
 
 car = Car(LICENSE_PLATE, MAXIMUM_SPEED)
-car.accelerate(30)
-car.accelerate(70)
-car.accelerate(50)
-car.accelerate(-200)
+print(car)
+car.current_speed = 60
+car.drive(1.5)
+print(f"Distance after driving 1.5 hours at 60 km/h: {car.travelled_distance} km")
