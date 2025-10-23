@@ -54,6 +54,7 @@ Ryhmä: TXK25S1-D
   - [1. Car](./mod9/01_car.py)
   - [2. Accelerate](./mod9/02_accelerate.py)
   - [3. Drive distance](./mod9/03_drive_distance.py)
+  - [4. Car race](./mod9/04_car_race.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
