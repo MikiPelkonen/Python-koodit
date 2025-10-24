@@ -62,6 +62,7 @@ Ryhmä: TXK25S1-D
   - [4. Car race extended](./mod10/04_car_race_extended.py)
 - [Module 11](./mod11/)
   - [1. Publication](./mod11/01_publication.py)
+  - [2. Car extended](./mod11/02_car_extended.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
