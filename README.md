@@ -59,6 +59,7 @@ Ryhmä: TXK25S1-D
   - [1. Elevator](./mod10/01_elevator.py)
   - [2. Building](./mod10/02_building.py)
   - [3. Fire alarm](./mod10/03_fire_alarm.py)
+  - [4. Car race extended](./mod10/04_car_race_extended.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
