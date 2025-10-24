@@ -60,6 +60,8 @@ Ryhmä: TXK25S1-D
   - [2. Building](./mod10/02_building.py)
   - [3. Fire alarm](./mod10/03_fire_alarm.py)
   - [4. Car race extended](./mod10/04_car_race_extended.py)
+- [Module 11](./mod11/)
+  - [1. Publication](./mod11/01_publication.py)
 - [Extras](./extras/)
   - [Fizz Buzz](./extras/fizz_buzz.py)
   - [Text adventure](./extras/text_adventure.py)
