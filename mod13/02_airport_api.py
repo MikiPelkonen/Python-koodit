@@ -1,31 +1,18 @@
 from dataclasses import dataclass, fields, MISSING
 from contextlib import contextmanager
 from flask import Flask, jsonify
+from werkzeug.exceptions import HTTPException, NotFound, Forbidden
 from markupsafe import escape
 import mysql.connector
 import datetime
-from typing import Dict, Optional, Union, cast, Any
+import logging
+import json
+from typing import Dict, Optional, cast, Any
 from dotenv import load_dotenv
+from werkzeug.wrappers.response import Response
 import os
 
 load_dotenv()
-
-
-@dataclass
-class Airport:
-    ident: str
-    name: str
-    municipality: str
-
-
-DB_CONFIG = {
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
-    "host": os.getenv("DB_HOST", "127.0.0.1"),
-    "port": os.getenv("DB_PORT", 3306),
-    "database": os.getenv("DB_NAME", "flight_game"),
-}
-
 
 TYPE_CONVERSIONS = {
     int: int,
@@ -35,85 +22,202 @@ TYPE_CONVERSIONS = {
 }
 
 
+@dataclass
+class Airport:
+    ident: str
+    name: str
+    municipality: str
+
+
 class Database:
+    logger = logging.getLogger(__name__)
+
     def __init__(self, config) -> None:
         self.config = config
 
     @contextmanager
-    def get_conn(self, commit_on_exit: bool = True):
-        conn = mysql.connector.connect(**self.config)
-        cur = conn.cursor(dictionary=True)
+    def get_conn_cur(self, commit_on_exit: bool = False):
+        conn = None
+        cur = None
         try:
+            conn = mysql.connector.connect(**self.config)
+            cur = conn.cursor(dictionary=True)
             yield cur
             if commit_on_exit:
                 conn.commit()
+        except mysql.connector.Error as e:
+            Database.logger.error(
+                "DB error: %s Errno:%s State:%s",
+                e.msg,
+                getattr(e, "errno", None),
+                getattr(e, "sqlstate", None),
+            )
+            raise
         finally:
-            cur.close()
-            conn.close()
+            if cur:
+                cur.close()
+            if conn:
+                conn.close()
 
     def _row_to_airport(self, row) -> Airport:
-        kwargs = {}
-
+        expected_fields = {}
         for field in fields(Airport):
             if field.name in row:
                 value = row[field.name]
                 converter = TYPE_CONVERSIONS.get(field.type, lambda v: v)
                 value = converter(value)
-                kwargs[field.name] = value
+                expected_fields[field.name] = value
             elif field.default is not MISSING:
-                kwargs[field.name] = field.default
+                expected_fields[field.name] = field.default
             elif field.default_factory is not MISSING:
-                kwargs[field.name] = field.default_factory()
+                expected_fields[field.name] = field.default_factory()
             else:
                 raise KeyError(f"Missing required field: {field.name}")
 
-        return Airport(**kwargs)
+        return Airport(**expected_fields)
 
     def get_by_icao(self, params: tuple = ()) -> Optional[Airport]:
         sql = "SELECT ident, name, municipality FROM airport WHERE ident = %s"
-        with self.get_conn(commit_on_exit=False) as cur:
+        with self.get_conn_cur() as cur:
             cur.execute(sql, params)
             row = cast(Optional[Dict[str, Any]], cur.fetchone())
             return self._row_to_airport(row) if row else None
 
 
 class Server(Flask):
-    version = "0.1.0"
+    version = "0.2.0"
 
     def __init__(
         self,
         import_name: str,
         *,
-        host: str = "127.0.0.1",
-        port: int = 5000,
         debug: bool = False,
-        static_url_path: Optional[str] = None,
-        static_folder: Union[str, os.PathLike[str], None] = "static",
-        static_host: Union[str, None] = None,
-        host_matching: bool = False,
-        subdomain_matching: bool = False,
-        template_folder: Union[str, os.PathLike[str], None] = "templates",
-        instance_path: Union[str, None] = None,
-        instance_relative_config: bool = False,
-        root_path: Union[str, None] = None,
+        host: str = "localhost",
+        port: int = 5000,
+        db_config: dict,
         **kwargs,
     ):
         self.server_host = host
         self.server_port = port
         self.server_debug = debug
+        self.server_start_time = datetime.datetime.now()
+        self.server_db = Database(db_config)
 
         super().__init__(
             import_name,
-            static_url_path,
-            static_folder,
-            static_host,
-            host_matching,
-            subdomain_matching,
-            template_folder,
-            instance_path,
-            instance_relative_config,
-            root_path,
             **kwargs,
+        )
+
+    def register_routes(self):
+        @self.route("/favicon.ico")
+        def favicon():
+            return "", 204
+
+        @self.route("/status", methods=["GET"])
+        def status():
+            if self.server_debug:
+                return self.getStatus()
+            raise Forbidden("Restricted access.")
+
+        @self.route("/kenttä/<icao>", methods=["GET"])
+        def get_airport_by_icao(icao):
+            airport = self.server_db.get_by_icao((icao.upper(),))
+            if airport:
+                return self.getPayload(
+                    message="Airport found",
+                    data=airport.__dict__,
+                    success=True,
+                    code=200,
+                )
+            raise NotFound(f"Airport not found with ICAO: {escape(icao)}")
+
+    def _uptime(self):
+        uptime = datetime.datetime.now() - self.server_start_time
+        delta = uptime.total_seconds()
+        hours, remainder = divmod(delta, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return "".join(
+            (
+                f"Days: {uptime.days} Hours: {int(hours):d} ",
+                f"Minutes: {int(minutes):d} ",
+                f"seconds: {int(seconds):d}",
+            )
+        )
+
+    def getStatus(self):
+        return self.getPayload(
+            message="Server healthy",
+            data={
+                "server_status": {
+                    "host": self.server_host,
+                    "port": self.server_port,
+                    "debug": self.server_debug,
+                    "start_time": self.server_start_time.strftime("%c"),
+                    "alive": self._uptime(),
+                }
+            },
+            success=True,
+            code=200,
+        )
+
+    def getPayload(
+        self,
+        message: Optional[str] = None,
+        data: Optional[Any] = None,
+        *,
+        success: bool = True,
+        code: int = 200,
+        error: Optional[Dict[str, Any]] = None,
+        **kwargs,
+    ) -> Response:
+        payload = {"success": success, "code": code}
+        if message:
+            payload["message"] = message
+        if data is not None:
+            payload["data"] = data
+        if error is not None:
+            payload["error"] = error
+
+        payload.update(kwargs)
+        if self.server_debug:
+            print("[DEBUG] Payload:", json.dumps(payload, indent=2))
+
+        response = jsonify(payload)
+        response.status_code = code
+        return response
+
+    def json_error(
+        self,
+        error: Optional[Exception] = None,
+        message: Optional[str] = None,
+        code: int = 500,
+    ) -> Response:
+        if isinstance(error, HTTPException):
+            return self.getPayload(
+                success=False,
+                code=error.code or code,
+                error={"type": error.__class__.__name__, "message": error.description},
+            )
+
+        if isinstance(error, mysql.connector.Error):
+            return self.getPayload(
+                success=False,
+                code=500,
+                error={
+                    "type": "DatabaseError",
+                    "errno": error.errno,
+                    "sqlstate": error.sqlstate,
+                    "message": error.msg,
+                },
+            )
+        self.logger.error("Unhandled exception", exc_info=error)
+        return self.getPayload(
+            success=False,
+            code=code,
+            error={
+                "type": error.__class__.__name__ if error else "UnknownError",
+                "message": str(error) if error else (message or "Something went wrong"),
+            },
         )
 
     def listen(self):
@@ -169,14 +273,14 @@ class Server(Flask):
                 f"> Listening: http://{self.server_host}:{self.server_port} <",
             ]
             result_msg = _render_with_borders(listen_messages)
-            if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-                print(result_msg)
-
+            print(result_msg)
+            self.register_routes()
             super().run(
                 host=self.server_host,
                 port=self.server_port,
                 debug=self.server_debug,
             )
+
         except Exception as e:
             error_messages = [
                 f"Server: {__name__}",
@@ -184,37 +288,43 @@ class Server(Flask):
                 f"Error: {type(e).__name__}: {str(e)}",
             ]
             error_msg = _render_with_borders(error_messages)
-            print("\n".join(error_msg))
+            print(error_msg)
 
 
-serverSettings = {"host": "127.0.0.1", "port": 5001, "debug": True}
-server = Server(__name__, **serverSettings)
-db = Database(DB_CONFIG)
-
-
-@server.route("/favicon.ico", methods=["GET"])
-def favicon():
-    return "", 204
-
-
-@server.route("/kenttä/<icao>", methods=["GET"])
-def airport_by_icao(icao):
-    airport = db.get_by_icao((icao.upper(),))
-    if airport:
-        return jsonify(airport.__dict__), 200
-    else:
-        return jsonify(
-            {
-                "error": "Not Found",
-                "message": f"Airport not found with ICAO: {escape(icao)}",
-            }
-        ), 404
+server = Server(
+    __name__,
+    host="127.0.0.1",
+    port=5005,
+    debug=True,  # switch False for "fake prod mode"
+    db_config={
+        "user": os.getenv("DB_USER", "devuser"),
+        "password": os.getenv("DB_PASSWORD", "devpw"),
+        "host": os.getenv("DB_HOST", "127.0.0.1"),
+        "port": os.getenv("DB_PORT", 3306),
+        "database": os.getenv("DB_NAME", "flight_game"),
+    },
+)
 
 
 @server.errorhandler(Exception)
 def handle_general_error(e):
-    return jsonify({"error": "Internal Server Error", "message": str(e)}), 500
+    return server.json_error(e)
 
 
 if __name__ == "__main__":
-    server.listen()
+    try:
+        server.listen()
+    finally:
+        if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+            print()
+            print(
+                "\n".join(
+                    (
+                        "--- Total server runtime ---",
+                        f"From: {server.server_start_time.strftime('%c')}",
+                        f"Till: {datetime.datetime.now().strftime('%c')}",
+                        f"{server._uptime()}",
+                    )
+                )
+            )
+            print("\nShutting down...")
