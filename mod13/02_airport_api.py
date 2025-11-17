@@ -136,11 +136,11 @@ class Server(Flask):
         delta = uptime.total_seconds()
         hours, remainder = divmod(delta, 3600)
         minutes, seconds = divmod(remainder, 60)
-        return "".join(
+        return " ".join(
             (
-                f"Days: {uptime.days} Hours: {int(hours):d} ",
-                f"Minutes: {int(minutes):d} ",
-                f"seconds: {int(seconds):d}",
+                f"{uptime.days} days {int(hours):d} hours",
+                f"{int(minutes):d} minutes",
+                f"{int(seconds):d} seconds",
             )
         )
 
@@ -152,7 +152,7 @@ class Server(Flask):
                     "host": self.server_host,
                     "port": self.server_port,
                     "debug": self.server_debug,
-                    "start_time": self.server_start_time.strftime("%c"),
+                    "start_time": self.server_start_time.strftime("%d.%B %Y %H:%M"),
                     "alive": self._uptime(),
                 }
             },
@@ -273,7 +273,7 @@ class Server(Flask):
                 f"> Listening: http://{self.server_host}:{self.server_port} <",
             ]
             result_msg = _render_with_borders(listen_messages)
-            if server.server_debug:
+            if self.server_debug:
                 if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
                     print("Server starting...")
                     print(result_msg)
@@ -285,16 +285,16 @@ class Server(Flask):
                 debug=self.server_debug,
             )
 
-            if server.server_debug:
+            if self.server_debug:
                 if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
                     print()
                     print(
                         "\n".join(
                             (
                                 "--- Total server runtime ---",
-                                f"From: {server.server_start_time.strftime('%c')}",
+                                f"From: {self.server_start_time.strftime('%c')}",
                                 f"Till: {datetime.datetime.now().strftime('%c')}",
-                                f"{server._uptime()}",
+                                f"{self._uptime()}",
                             )
                         )
                     )
