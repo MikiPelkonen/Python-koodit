@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, MISSING
 from contextlib import contextmanager
 from flask import Flask, jsonify
 from markupsafe import escape
@@ -11,6 +11,13 @@ import os
 load_dotenv()
 
 
+@dataclass
+class Airport:
+    ident: str
+    name: str
+    municipality: str
+
+
 DB_CONFIG = {
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD"),
@@ -20,11 +27,12 @@ DB_CONFIG = {
 }
 
 
-@dataclass
-class Airport:
-    ident: str
-    name: str
-    municipality: str
+TYPE_CONVERSIONS = {
+    int: int,
+    float: float,
+    bool: lambda v: str(v).lower() in ("1", "true", "yes"),
+    str: lambda v: v,
+}
 
 
 class Database:
@@ -44,9 +52,22 @@ class Database:
             conn.close()
 
     def _row_to_airport(self, row) -> Airport:
-        allowed = {"ident", "name", "municipality"}
-        args = {k: row[k] for k in allowed}
-        return Airport(**args)
+        kwargs = {}
+
+        for field in fields(Airport):
+            if field.name in row:
+                value = row[field.name]
+                converter = TYPE_CONVERSIONS.get(field.type, lambda v: v)
+                value = converter(value)
+                kwargs[field.name] = value
+            elif field.default is not MISSING:
+                kwargs[field.name] = field.default
+            elif field.default_factory is not MISSING:
+                kwargs[field.name] = field.default_factory()
+            else:
+                raise KeyError(f"Missing required field: {field.name}")
+
+        return Airport(**kwargs)
 
     def get_by_icao(self, params: tuple = ()) -> Optional[Airport]:
         sql = "SELECT ident, name, municipality FROM airport WHERE ident = %s"
@@ -108,8 +129,8 @@ class Server(Flask):
 
                 return f"|{' ' * left_pad}{message}{' ' * right_pad}|"
 
-            raw_length = int(_max_msg_len(messages))
-            max_length = int(_max_msg_len(messages)) + 6
+            raw_length = _max_msg_len(messages)
+            max_length = raw_length + 6
             if raw_length % 2 != 0:
                 max_length += 1
 
@@ -127,7 +148,7 @@ class Server(Flask):
                 + [formatted_messages[0], border, _render_line("", max_length)]
                 + [
                     item
-                    for message in formatted_messages[2:-1]
+                    for message in formatted_messages[1:-1]
                     for item in (message, _render_line("", max_length))
                 ]
                 + [
