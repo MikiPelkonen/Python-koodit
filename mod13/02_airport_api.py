@@ -1,18 +1,3 @@
-"""
-Needed packages:
-- mysql.connector
-- flask
-- dotenv
-
-Plan:
-- class Server
-    - Run()
-- class Database
-  - connection contextmanager
-- class AirportRepository
-- dataclass Airport
-"""
-
 from dataclasses import dataclass
 from contextlib import contextmanager
 from flask import Flask, jsonify
