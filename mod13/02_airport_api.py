@@ -22,13 +22,13 @@ DB_CONFIG = {
 
 @dataclass
 class Airport:
-    icao: str
+    ident: str
     name: str
     municipality: str
 
 
 class Database:
-    def __init__(self, **config) -> None:
+    def __init__(self, config) -> None:
         self.config = config
 
     @contextmanager
@@ -43,15 +43,13 @@ class Database:
             cur.close()
             conn.close()
 
-    def _row_to_airport(self, row: Dict[str, Any]) -> Airport:
-        return Airport(
-            icao=str(row["ident"]),
-            name=str(row["name"]),
-            municipality=str(row["municipality"]),
-        )
+    def _row_to_airport(self, row) -> Airport:
+        allowed = {"ident", "name", "municipality"}
+        args = {k: row[k] for k in allowed}
+        return Airport(**args)
 
-    def get_by_icao(self, params: tuple = ()):
-        sql = "SELECT * FROM airport WHERE ident LIKE %s"
+    def get_by_icao(self, params: tuple = ()) -> Optional[Airport]:
+        sql = "SELECT ident, name, municipality FROM airport WHERE ident = %s"
         with self.get_conn(commit_on_exit=False) as cur:
             cur.execute(sql, params)
             row = cast(Optional[Dict[str, Any]], cur.fetchone())
@@ -170,7 +168,7 @@ class Server(Flask):
 
 serverSettings = {"host": "127.0.0.1", "port": 5001, "debug": True}
 server = Server(__name__, **serverSettings)
-db = Database(**DB_CONFIG)
+db = Database(DB_CONFIG)
 
 
 @server.route("/favicon.ico", methods=["GET"])
@@ -180,7 +178,7 @@ def favicon():
 
 @server.route("/kenttä/<icao>", methods=["GET"])
 def airport_by_icao(icao):
-    airport = db.get_by_icao((icao,))
+    airport = db.get_by_icao((icao.upper(),))
     if airport:
         return jsonify(airport.__dict__), 200
     else:
