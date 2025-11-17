@@ -273,13 +273,32 @@ class Server(Flask):
                 f"> Listening: http://{self.server_host}:{self.server_port} <",
             ]
             result_msg = _render_with_borders(listen_messages)
-            print(result_msg)
+            if server.server_debug:
+                if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+                    print("Server starting...")
+                    print(result_msg)
+
             self.register_routes()
             super().run(
                 host=self.server_host,
                 port=self.server_port,
                 debug=self.server_debug,
             )
+
+            if server.server_debug:
+                if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+                    print()
+                    print(
+                        "\n".join(
+                            (
+                                "--- Total server runtime ---",
+                                f"From: {server.server_start_time.strftime('%c')}",
+                                f"Till: {datetime.datetime.now().strftime('%c')}",
+                                f"{server._uptime()}",
+                            )
+                        )
+                    )
+                    print("Server shutting down...")
 
         except Exception as e:
             error_messages = [
@@ -312,19 +331,4 @@ def handle_general_error(e):
 
 
 if __name__ == "__main__":
-    try:
-        server.listen()
-    finally:
-        if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-            print()
-            print(
-                "\n".join(
-                    (
-                        "--- Total server runtime ---",
-                        f"From: {server.server_start_time.strftime('%c')}",
-                        f"Till: {datetime.datetime.now().strftime('%c')}",
-                        f"{server._uptime()}",
-                    )
-                )
-            )
-            print("\nShutting down...")
+    server.listen()
